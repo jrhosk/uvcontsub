@@ -1,1 +1,4 @@
-![](./notebook.svg)
+# UVCONTSUB2021 Notebook Demonstration
+This notebook represents an initial demonstration of UVCONTSUB2021 ([CAS-13631](https://open-jira.nrao.edu/browse/CAS-13631)) along with proof-of-principle and metric plots. All utility functions from the notebook can be found in `vizhelper.py`.  The notebook can be downloaded and run locally but requires the development `whl` for CAS-13631 found via Bamboo [here](https://open-bamboo.nrao.edu/browse/CASA-C6B502-5).
+
+An executed version of the notebook can be found via nbviewer [here](https://nbviewer.org/urls/www.cv.nrao.edu/~jhoskins/simulations_uvcontsub_ALMA_plotly_restruct.ipynb).
