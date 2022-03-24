@@ -4,6 +4,7 @@ import glob
 import os, shutil
 import scipy
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
@@ -271,8 +272,8 @@ def plot_ms_data(msname='sim_data.ms', myplot='uv', fitline=None, average=False)
               myplot='data_spectrum'
     Args:
       plot_complex: 'abs', 'real', or 'imag'
-    """
-    
+    """ 
+
     tb = table()
     from matplotlib.collections import LineCollection
     tb.open(msname)
@@ -308,24 +309,30 @@ def plot_ms_data(msname='sim_data.ms', myplot='uv', fitline=None, average=False)
         for chan in range(0,dats.shape[1]):
             xs[:,chan] = chan
     
-        npl = dats.shape[0]
-        fig, ax = plt.subplots(npl, 1, figsize=(30, 20))
+        #npl = dats.shape[0] 
+
+        fig, ax = plt.subplots(1, 1, figsize=(30, 20))
+
+        matplotlib.rc('axes', titlesize=30)
+        matplotlib.rc('axes', labelsize=30)
+        matplotlib.rc('xtick', labelsize=20)
+        matplotlib.rc('ytick', labelsize=20)
 
         if average:
-            for pol in range(0,dats.shape[0]):
-                x = xs
-                y = np.mean(dats[pol,:,:].real.T, axis=0)
-                
-                y_std = np.std(dats[pol,:,:].real.T, axis=0)
             
-                ax[pol].scatter(x=xs[0], y=y, c='#ff8d33')
-                ax[pol].plot(xs[0], y, c='#ff8d33')
+            x = xs
+            y = np.mean(dats[0,:,:].real.T, axis=0)
                 
-                if fitline is not None:
-                    y_fit = np.mean(fitline[pol,:,:].real.T, axis=0)
-                    ax[pol].plot(xs[0], y_fit, color='black', linewidth=3)
+            y_std = np.std(dats[0,:,:].real.T, axis=0)
+            
+            ax.scatter(x=xs[0], y=y, c='#ff8d33')
+            ax.plot(xs[0], y, c='#ff8d33')
                 
-                ax[pol].fill_between(
+            if fitline is not None:
+                y_fit = np.mean(fitline[pol,:,:].real.T, axis=0)
+                ax.plot(xs[0], y_fit, color='black', linewidth=3)
+                
+                ax.fill_between(
                     x=xs[0], 
                     y1=y + y_std,
                     y2=y - y_std,
@@ -333,25 +340,29 @@ def plot_ms_data(msname='sim_data.ms', myplot='uv', fitline=None, average=False)
                     edgecolor='#ff8d33',
                     facecolor='#f0b27a'
                 )
-                ax[pol].set_title(myplot + ': polar: '+ str(pol) + " (real)")
-                ax[pol].set_xlim(x.min(), x.max())
-                ax[pol].set_ylim(dats[pol,:,:].real.T.min(), dats[pol,:,:].real.T.max())
+                ax.set_title(myplot + ': real')
+                ax.set_xlabel('Channel')
+                ax.set_ylabel('Real')
+                ax.set_xlim(x.min(), x.max())
+                ax.set_ylim(dats[0,:,:].real.T.min(), dats[0,:,:].real.T.max())
             
         else:
             colors = [
                 mcolors.to_rgba(c) for c in plt.rcParams['axes.prop_cycle'].by_key()['color']
             ]
         
-            for pol in range(0,dats.shape[0]):
-                x = xs
-                y = dats[pol,:,:].real.T 
             
-                data_real = np.stack((x, y), axis=2)
+            x = xs
+            y = dats[0,:,:].real.T 
             
-                ax[pol].add_collection(LineCollection(data_real, colors=colors))
-                ax[pol].set_title(myplot + ': polar: '+ str(pol) + " (real)")
-                ax[pol].set_xlim(x.min(), x.max())
-                ax[pol].set_ylim(y.min(), y.max())
+            data_real = np.stack((x, y), axis=2)
+            
+            ax.add_collection(LineCollection(data_real, colors=colors))
+            ax.set_title(myplot + ': real')
+            ax.set_xlabel('Channel')
+            ax.set_ylabel('Real')
+            ax.set_xlim(x.min(), x.max())
+            ax.set_ylim(y.min(), y.max())
         
         plt.show()
 
@@ -602,7 +613,7 @@ def compare_visstat(uncorr:str, corr=str)->None:
         
     return table
 
-def make_spectrum_plotly(msname:list, myplot:str, fitline=list):
+def make_spectrum_plot(msname:list, myplot:str, fitline=list):
     '''
     Spectrum plot utility function using plotly visualization library.
     '''
@@ -611,7 +622,9 @@ def make_spectrum_plotly(msname:list, myplot:str, fitline=list):
     fig = make_subplots(
         rows=len(msname), cols=1,
         shared_xaxes=True,
-        vertical_spacing=0.03
+        vertical_spacing=0.03,
+        x_title='Channel',
+        y_title='Real (average)'
     )
     
     for i, name in enumerate(msname):
@@ -732,7 +745,7 @@ def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis O
     fig = make_subplots(
         rows=4, cols=1,
         shared_xaxes=False,
-        vertical_spacing=0.03,
+        vertical_spacing=0.06,
         specs=[
             [{"type": "scatter"}],
             [{"type": "scatter"}],
@@ -809,7 +822,7 @@ def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis O
             cells=dict(
                 values=[
                     visstat_keys,
-                    visstat_corrected_values,
+                    visstat_uncorrected_values,
                     visstat_corrected_values
                 ],
                 align = "left")
@@ -820,6 +833,7 @@ def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis O
         height=1000,
         showlegend=True,
         title_text=title,
+        yaxis_title='Real (average)'
     )
 
     fig['layout'].update(
@@ -844,5 +858,12 @@ def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis O
     )
     fig['layout']['yaxis']['range']=[-0.1, 1.2*uncorr_data.max()]
     fig['layout']['yaxis2']['range']=[-0.1, 1.2*uncorr_data.max()]
+
+    fig['layout']['yaxis']['title']['text']='Real(average)'
+    fig['layout']['yaxis2']['title']['text']='Real(average)'
+    fig['layout']['yaxis3']['title']['text']='Probability Density'
+
+    fig['layout']['xaxis']['title']['text']='Channel'
+    fig['layout']['xaxis2']['title']['text']='Channel'
 
     fig.show() 
