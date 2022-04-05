@@ -366,7 +366,7 @@ def plot_ms_data(msname='sim_data.ms', myplot='uv', fitline=None, average=False)
         
         plt.show()
 
-def plot_ms_corrected_data(msname:str, myplot:str, chan_list:list)->None:
+def plot_ms_corrected_data(msname:str, myplot:str, chan_list:'[list]')->None:
     """
     Plot corrected ms data as a amplitude vs channel, averaged along the sample axis. Errors bars are 
     shown per point as average stddev along the sample axis.
@@ -380,13 +380,13 @@ def plot_ms_corrected_data(msname:str, myplot:str, chan_list:list)->None:
     baseline, base_chans = get_continuum_data(
         msname=msname, 
         myplot='data_spectrum', 
-        chan_list=[chan_list]
+        chan_list=chan_list
     )
     
     peak, peak_chans = get_peak_data(
         msname=msname,
         myplot='data_spectrum', 
-        chan_list=[chan_list]
+        chan_list=chan_list
     )
     
     npl = baseline.shape[0]
@@ -450,14 +450,14 @@ def get_spectrum_data(msname:str, myplot:str)->'numpy.array':
   
     return data
 
-def get_continuum_data(msname:str, myplot:str, chan_list=list)->'numpy.array':
+def get_continuum_data(msname:str, myplot:str, chan_list='[list]')->'numpy.array':
     '''
         Return continuum (only) data as numpy array
 
     Args: 
        msname (string): name of ms file
        myplot (str): type of plot
-       chan_list (list): list of channels containing a peak
+       chan_list ([list]): list of channel tuples containing a peak, ex. [[lower_1, upper_1],[lower_2, uppoer_2], ....]
 
     Returns:
          peak, chans
@@ -487,14 +487,14 @@ def get_continuum_data(msname:str, myplot:str, chan_list=list)->'numpy.array':
             
     return baseline, chans[0]
 
-def get_peak_data(msname:str, myplot:str, chan_list=list)->'numpy.array':
+def get_peak_data(msname:str, myplot:str, chan_list='[list]')->'numpy.array':
     '''
     Return peak data (only) as numpy array
 
     Args: 
        msname (string): name of ms file
        myplot (str): type of plot
-       chan_list (list): list of channels containing a peak
+       chan_list ([list]): list of channel tuples containing a peak, ex. [[lower_1, upper_1],[lower_2, uppoer_2], ....]
 
     Return:
          peaks, chans
@@ -519,7 +519,7 @@ def get_peak_data(msname:str, myplot:str, chan_list=list)->'numpy.array':
                 
     return peak, chans
 
-def plot_baseline_histogram(msname:str, myplot:str, chan_list:list):
+def plot_baseline_histogram(msname:str, myplot:str, chan_list:'[list]'):
     '''
        Plot histogram of continuum data only.
     '''
@@ -527,7 +527,7 @@ def plot_baseline_histogram(msname:str, myplot:str, chan_list:list):
     baseline, _ = get_continuum_data(
         msname=msname, 
         myplot='data_spectrum', 
-        chan_list=[chan_list]
+        chan_list=chan_list
     )
     
     npl = baseline.shape[0]
@@ -678,7 +678,7 @@ def make_spectrum_plot(msname:list, myplot:str, fitline=list):
     
     fig.show()
 
-def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis Overview"):
+def make_synopsis_plotly(uncorr:str, corr:str, chan_list:'[list]', title="Analysis Overview"):
     '''
     Utility function returning syunopsis plots and visstat comparison table for corrected ms files.
     '''
@@ -692,7 +692,7 @@ def make_synopsis_plotly(uncorr:str, corr:str, chan_list:list, title="Analysis O
     baseline, _ = get_continuum_data(
         msname=corr,
         myplot='data_spectrum',
-        chan_list=[chan_list]
+        chan_list=chan_list
     )
 
     # Retrieve uncorrected spectrum
